@@ -1,0 +1,48 @@
+= babylon_agnostics
+
+This roles allows you to communicate with the link:https://github.com/redhat-gpe/agnostics[AgnosticS scheduler].
+It is to be used in link:https://github.com/redhat-cop/babylon[Babylon] link:https://github.com/redhat-cop/anarchy[Anarchy].
+
+This role does the following:
+
+. call the scheduler
+. Look for a corresponding secret in the provided namespace (default is `gpte`)
+. load that secret
+. inject it back into `dynamic_job_vars`
+
+
+== Input ==
+
+For *input* variables, please refer to link:defaults/main.yaml[].
+
+The credentials to access the API can be loaded via an OpenShift secret in your OCP Babylon cluster and the special var `agnostics_mgr_access`. For example, if you created a secret `agnostics-api-mgr-access` in the `agnostics` namespace, you can inject it into the `agnostics_mgr_access` this way:
+
+.using agnosticv-operator:
+[source,yaml]
+----
+__meta__:
+  secrets:
+    - name: agnostics-api-mgr-access
+      namespace: agnostics
+      var: agnostics_mgr_access
+----
+
+.using Anarchy Governor directly:
+[source,yaml]
+----
+spec:
+  varSecrets:
+    - name: agnostics-api-mgr-access
+      namespace: agnostics
+      var: agnostics_mgr_access
+----
+
+The following **output** variables will be set using `set_fact` module.
+
+|=============================================
+| Variable name | example | Purpose
+
+| `agnostics_placement_cloud`
+| openstack-orange
+| The name of the cloud
+|=============================================

@@ -1,0 +1,35 @@
+---
+- name: Ensure mandatory variables are set
+  assert:
+    that: "{{ check.that }}"
+    fail_msg: "{{ check.msg }}"
+    quiet: true
+  loop_control:
+    loop_var: check
+    label: "{{ check.msg }}"
+  loop:
+    - msg: Variable uuid is undefined
+      that: uuid | default('') != ''
+
+    - msg: Variable agnostics_username is not defined
+      that: agnostics_username is defined and agnostics_username != ''
+
+    - msg: Variable agnostics_password is not defined
+      that: agnostics_password is defined and agnostics_password != ''
+
+    - msg: Variable agnostics_url is not defined
+      that: agnostics_url is defined and agnostics_url != ''
+
+- name: Ensure Scheduler is healthy
+  uri:
+    url: "{{ agnostics_url }}/api/v1/health"
+    validate_certs: "{{ agnostics_validate_certs }}"
+    return_content: true
+    method: GET
+    status_code: [200]
+  register: g_health
+  retries: "{{ agnostics_retries }}"
+  delay: "{{ agnostics_delay }}"
+  until: g_health is succeeded
+  failed_when: >-
+    'OK' not in g_health.content

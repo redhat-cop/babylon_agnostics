@@ -1,0 +1,36 @@
+---
+- debug:
+    msg: >-
+      anarchy_action_config_name={{ anarchy_action_config_name|default('undefined') }}
+      anarchy_action_callback_name={{ anarchy_action_callback_name|default('undefined') }}
+      anarchy_event_name={{ anarchy_event_name|default('undefined') }}
+
+- when: >-
+    anarchy_subject.vars.job_vars.__meta__.scheduler.enable | default(false)
+    or
+    vars.anarchy_governor.vars.job_vars.__meta__.scheduler.enable | default(false)
+
+  block:
+
+    - when:
+        - anarchy_action_config_name is defined
+        - anarchy_action_callback_name is not defined
+        - anarchy_event_name is not defined
+      block:
+        - include_tasks: set_data.yaml
+        - include_tasks: pre_checks.yaml
+        - name: Get Placement
+          include_tasks: get.yaml
+        - name: Load secret
+          include_tasks: load_secret.yaml
+
+    - name: Delete placement (destroy complete)
+      when:
+        - anarchy_action_config_name is defined
+        - anarchy_action_config_name == 'destroy'
+        - anarchy_action_callback_name is defined
+        - anarchy_action_callback_name == 'complete'
+      block:
+        - include_tasks: pre_checks.yaml
+        - name: Delete placement
+          include_tasks: release.yaml

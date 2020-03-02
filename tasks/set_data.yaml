@@ -1,0 +1,28 @@
+---
+# Those facts are set here first, because of a bug with the uri module.
+# If the relative_vars lookup plugin is used before we use the uri module,
+# then the lookup plugin doesn't work.
+- name: Use relative_vars lookup to get the data
+  vars:
+    _job_vars: >-
+      {{ vars.anarchy_subject.vars.job_vars | default({})
+      | combine(vars.anarchy_governor.vars.job_vars, recursive=True) }}
+  set_fact:
+    agnostics_data: >-
+        {{ lookup('relative_vars', '__meta__.scheduler.data', context_vars=_job_vars) }}
+
+- name: Cleanup empty annotations from scheduler data
+  set_fact:
+    agnostics_data: >-
+      {{ agnostics_data
+      | combine(
+          {"annotations":
+            agnostics_data.annotations
+            | default({})
+            | dict2items
+            | rejectattr("value", "equalto", "")
+            | list
+            | items2dict
+          }
+        )
+      }}

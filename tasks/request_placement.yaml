@@ -1,0 +1,25 @@
+---
+- name: Debug body of POST request for the scheduler
+  debug:
+    var: agnostics_data
+
+- name: Schedule a placement
+  uri:
+    url: "{{ agnostics_url + agnostics_endpoint }}"
+    validate_certs: "{{ agnostics_validate_certs }}"
+    return_content: true
+    method: POST
+    body_format: json
+    body: "{{ agnostics_data }}"
+    url_username: "{{ agnostics_username }}"
+    url_password: "{{ agnostics_password }}"
+    status_code:
+      - 200
+  register: r_placement
+  retries: "{{ agnostics_retries }}"
+  delay: "{{ agnostics_delay }}"
+  until: r_placement is succeeded
+
+- name: Set fact agnostics_placement_cloud
+  set_fact:
+    agnostics_placement_cloud: "{{ r_placement.json.cloud.name }}"

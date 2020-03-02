@@ -1,0 +1,34 @@
+---
+# Variables from Anarchy Subject
+uuid: "{{ anarchy_subject.vars.job_vars.uuid | default(None) }}"
+
+agnostics_username: >-
+  {{ agnostics_mgr_access.username
+  | default(None) }}
+
+agnostics_password: >-
+  {{ agnostics_mgr_access.password
+  | default(None) }}
+
+# URL, endpoint, validate certs can be overwritten in agnosticv per catalog item
+# But by default they come from the secret, along with username and password.
+agnostics_url: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.scheduler.url
+  | default(agnostics_mgr_access.url) }}
+
+agnostics_validate_certs: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.scheduler.validate_certs
+  | default(agnostics_mgr_access.validate_certs)
+  | default(true) }}
+
+agnostics_endpoint: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.scheduler.endpoint
+  | default(agnostics_mgr_access.endpoint)
+  | default('/api/v1/schedule') }}
+
+agnostics_secrets_namespace: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.scheduler.secrets_namespace
+  | default('gpte') }}
+
+agnostics_retries: 1
+agnostics_delay: 1
