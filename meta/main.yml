@@ -1,0 +1,10 @@
+galaxy_info:
+  author: fridim
+  description: Babylon Anarchy role for AgnosticS scheduler
+  company: Red Hat
+  issue_tracker_url: https://github.com/redhat-cop/babylon_agnostics/issues
+  license: MIT
+  min_ansible_version: 2.9
+  galaxy_tags: []
+
+dependencies: []

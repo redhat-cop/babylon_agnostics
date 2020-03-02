@@ -1,0 +1,48 @@
+---
+- name: Debug job_vars
+  debug:
+    var: job_vars
+
+- name: Use relative_vars lookup to get the data
+  set_fact:
+    agnostics_data: >-
+        {{ lookup('relative_vars', '__meta__.scheduler.data', context_vars=(vars.job_vars)) }}
+
+- name: Cleanup empty annotations from scheduler data
+  set_fact:
+    agnostics_data: >-
+      {{ agnostics_data
+      | combine(
+          {"annotations":
+            agnostics_data.annotations
+            | default({})
+            | dict2items
+            | rejectattr("value", "equalto", "")
+            | list
+            | items2dict
+          }
+        )
+      }}
+
+- name: Debug body of POST request for the scheduler
+  debug:
+    var: agnostics_data
+
+- name: Schedule a placement
+  uri:
+    url: "{{ agnostics_url + agnostics_endpoint }}"
+    validate_certs: "{{ agnostics_validate_certs }}"
+    return_content: true
+    method: POST
+    body_format: json
+    body: "{{ agnostics_data }}"
+    status_code:
+      - 200
+  register: r_placement
+  retries: 1
+  delay: 1
+  until: r_placement is succeeded
+
+- name: Set fact agnostics_placement_cloud
+  set_fact:
+    agnostics_placement_cloud: "{{ r_placement.json.cloud.name }}"

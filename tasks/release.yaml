@@ -1,0 +1,16 @@
+---
+- name: Remove a placement
+  uri:
+    url: "{{ agnostics_url }}/api/v1/placements/{{ uuid }}"
+    validate_certs: "{{ agnostics_validate_certs }}"
+    return_content: true
+    method: DELETE
+    status_code: [200, 404]
+  register: r_placement
+  retries: 10
+  delay: 30
+  until: r_placement is succeeded
+
+- name: Debug info
+  debug:
+    msg: "placement {{ uuid }}: {{ r_placement.json.message }}"

@@ -1,0 +1,23 @@
+---
+- when: >-
+    anarchy_subject.vars.job_vars.__meta__.scheduler.enable | default(false)
+    or
+    vars.anarchy_governor.vars.job_vars.__meta__.scheduler.enable | default(false)
+
+  block:
+
+    - include_tasks: pre_checks.yaml
+
+    - name: Get Placement (always but no callbacks)
+      when:
+        - anarchy_action_config_name is defined
+        - anarchy_action_callback_name is not defined
+      include_tasks: get.yaml
+
+    - name: Delete placement (destroy complete)
+      when:
+        - anarchy_action_config_name is defined
+        - anarchy_action_config_name == 'destroy'
+        - anarchy_action_callback_name is defined
+        - anarchy_action_callback_name == 'complete'
+      include_tasks: release.yaml

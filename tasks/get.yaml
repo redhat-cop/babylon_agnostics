@@ -1,0 +1,27 @@
+---
+- name: Get placement using uuid
+  uri:
+    url: "{{ agnostics_url }}/api/v1/placements/{{ uuid }}"
+    validate_certs: "{{ agnostics_validate_certs }}"
+    return_content: true
+    method: GET
+    status_code:
+      - 200
+      - 404
+  register: g_placement
+  retries: 10
+  delay: 10
+  until: g_placement is succeeded
+
+- name: Set fact agnostics_placement_cloud
+  when: g_placement.status == 200
+  set_fact:
+    agnostics_placement_cloud: "{{ g_placement.json.cloud.name }}"
+
+- name: Placement does not exist, request new one
+  when: g_placement.status == 404
+  include_tasks: request_placement.yaml
+
+- name: Print placement
+  debug:
+    var: agnostics_placement_cloud
