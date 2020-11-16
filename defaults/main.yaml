@@ -1,6 +1,6 @@
 ---
 # Variables from Anarchy Subject
-uuid: "{{ anarchy_subject.vars.job_vars.uuid | default(None) }}"
+uuid: "{{ vars.anarchy_subject.vars.job_vars.uuid | default(None) }}"
 
 agnostics_username: >-
   {{ agnostics_mgr_access.username
