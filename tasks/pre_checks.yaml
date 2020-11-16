@@ -20,6 +20,14 @@
     - msg: Variable agnostics_url is not defined
       that: agnostics_url is defined and agnostics_url != ''
 
+    - msg: Variable __meta__.scheduler.data.uuid must be defined
+      that: >-
+        vars.anarchy_subject.vars.job_vars.__meta__.scheduler.data.uuid
+        | default('') != ''
+        or
+        vars.anarchy_governor.vars.job_vars.__meta__.scheduler.data.uuid
+        | default('') != ''
+
 - name: Ensure Scheduler is healthy
   uri:
     url: "{{ agnostics_url }}/api/v1/health"
