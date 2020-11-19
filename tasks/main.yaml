@@ -1,10 +1,4 @@
 ---
-- debug:
-    msg: >-
-      anarchy_action_config_name={{ anarchy_action_config_name|default('undefined') }}
-      anarchy_action_callback_name={{ anarchy_action_callback_name|default('undefined') }}
-      anarchy_event_name={{ anarchy_event_name|default('undefined') }}
-
 - when: >-
     vars.anarchy_subject.vars.job_vars.__meta__.scheduler.enable | default(false)
     or
@@ -12,8 +6,10 @@
 
   block:
 
-    - when:
+    - name: Get placement (provision, start, stop, or status)
+      when:
         - anarchy_action_config_name is defined
+        - anarchy_action_config_name != 'check'
         - anarchy_action_callback_name is not defined
         - anarchy_event_name is not defined
       block:
